@@ -51,5 +51,5 @@ jobs:
       - name: Helm install
         uses: WyriHaximus/github-action-helm3@v2
         with:
-          exec: helm upgrade --install helm-demo ./mychart
+          exec: helm upgrade --install helm-demo ./mychart --set=image.tag=${{ github.run_number }}
           kubeconfig: '${{ secrets.KUBECONFIG }}'
