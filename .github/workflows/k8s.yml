@@ -15,7 +15,7 @@ env:
   JAVA_VERSION: '1.8'
 
 jobs:
-  Container_Build:
+  Build:
     name: Build
     runs-on: ubuntu-latest
     steps:
@@ -30,14 +30,26 @@ jobs:
         username: ${{ secrets.REGISTRY_USERNAME }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
 
-    - name: Build with Maven
-      run: mvn package --file pom.xml
-
     - name: Container build
       run: |
         docker build -f $GITHUB_WORKSPACE/Dockerfile -t ${{ secrets.ACR }}/petclinic:${{ github.run_number }} .
     
     - name: Container push to a Azure Container registry (ACR)
       run: |
-        docker push ${{ secrets.ACR }}/petclinic:${{ github.run_number }}	
-    
+        docker push ${{ secrets.ACR }}/petclinic:${{ github.run_number }}
+  helm-lint:
+    name: Helm lint and release
+    runs-on: ubuntu-latest
+    needs: Build
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Helm Lint
+        uses: WyriHaximus/github-action-helm3@v2
+        with:
+          exec: helm lint ./mychart
+      - name: Helm install
+        uses: WyriHaximus/github-action-helm3@v2
+        with:
+          exec: helm upgrade --install github-magnolia-docker ./mychart
+          kubeconfig: '${{ secrets.KUBECONFIG }}'
