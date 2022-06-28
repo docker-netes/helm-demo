@@ -1,0 +1,43 @@
+
+name: helm-test
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [ master ]
+
+# Environment variables available to all jobs and steps in this workflow
+env:
+  REGISTRY_NAME: kanthreg
+  CLUSTER_NAME: sri-aks
+  CLUSTER_RESOURCE_GROUP: sri-aks
+  NAMESPACE: default
+  JAVA_VERSION: '1.8'
+
+jobs:
+  Container_Build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2    
+    
+    # Connect to Azure Container registry (ACR)
+    - name: Docker login
+      uses: azure/docker-login@v1
+      with:
+        login-server: kanthreg.azurecr.io
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+
+    - name: Build with Maven
+      run: mvn package --file pom.xml
+
+    - name: Container build
+      run: |
+        docker build -f $GITHUB_WORKSPACE/Dockerfile -t ${{ secrets.ACR }}/petclinic:${{ github.run_number }} .
+    
+    - name: Container push to a Azure Container registry (ACR)
+      run: |
+        docker push ${{ secrets.ACR }}/petclinic:${{ github.run_number }}	
+    
