@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: kanthreg.azurecr.io/helmnodejs
+  repository: kanthreg.azurecr.io/helmnodejs:${{ github.run_number }}
   tag: latest
   pullPolicy: Always
 
