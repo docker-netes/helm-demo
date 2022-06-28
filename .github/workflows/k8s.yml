@@ -32,11 +32,11 @@ jobs:
 
     - name: Container build
       run: |
-        docker build -f $GITHUB_WORKSPACE/Dockerfile -t ${{ secrets.ACR }}/petclinic:${{ github.run_number }} .
+        docker build -f $GITHUB_WORKSPACE/Dockerfile -t ${{ secrets.ACR }}/helmnodejs:${{ github.run_number }} .
     
     - name: Container push to a Azure Container registry (ACR)
       run: |
-        docker push ${{ secrets.ACR }}/petclinic:${{ github.run_number }}
+        docker push ${{ secrets.ACR }}/helmnodejs:${{ github.run_number }}
   helm-lint:
     name: Helm lint and release
     runs-on: ubuntu-latest
@@ -51,5 +51,5 @@ jobs:
       - name: Helm install
         uses: WyriHaximus/github-action-helm3@v2
         with:
-          exec: helm upgrade --install github-magnolia-docker ./mychart
+          exec: helm upgrade --install helm-demo ./mychart
           kubeconfig: '${{ secrets.KUBECONFIG }}'
